@@ -1,136 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stock Market Predictor</title>
-
-    <!-- External CSS and internal styles consolidated -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}" />
-    
-    <style>
-        /* Minimal fallback table style if CSS file fails */
-        .table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-        .table th, .table td { border: 1px solid #ddd; padding: 8px; }
-        .table tr:nth-child(even) { background-color: #f2f2f2; }
-        .table th {
-            padding-top: 12px; padding-bottom: 12px;
-            text-align: left;
-            background-color: #4CAF50; color: white;
-        }
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f9fafb;
-            margin: 20px;
-            color: #333;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-        }
-        form {
-            max-width: 400px;
-            margin: 0 auto 40px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(44, 62, 80, 0.1);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-        form label {
-            flex-basis: 100%;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        input[type="text"] {
-            flex-grow: 1;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-        input[type="submit"] {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-        h2, h3 {
-            text-align: center;
-            color: #34495e;
-            margin-top: 30px;
-        }
-        .container {
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 0 15px;
-        }
-    </style>
-
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stock Market Predictor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Stock Market Predictor</h1>
+  <!-- Dark Mode Toggle -->
+  <div class="top-bar">
+    <button id="themeToggle">🌙 Dark Mode</button>
+  </div>
 
-        <form method="post" aria-label="Stock symbol input form">
-            <label for="stock-symbol">Enter Stock Symbol</label>
-            <input type="text" id="stock-symbol" name="stock" value="{{ stock }}" required aria-required="true" aria-describedby="stockHelp" autocomplete="off" />
-            <input type="submit" value="Predict" />
-        </form>
+  <div class="container">
+    <h1> Stock Market Predictor</h1>
 
-        {% if data_html %}
-            <h2>Stock Data</h2>
-            <div class="table-responsive">{{ data_html|safe }}</div>
-        {% endif %}
+    <form method="post" aria-label="Stock symbol input form" id="stockForm">
+      <label for="stock-symbol">Enter Stock Symbol</label>
+      <input type="text" id="stock-symbol" name="stock" value="{{ stock }}" autocomplete="off" aria-required="true" />
 
-        {% if graph_urls %}
-            <h2>Charts</h2>
+      <small>Or select from popular tickers below:</small>
+      <select id="ticker_select" name="ticker_select">
+        <option value="">-- Select Popular Ticker --</option>
+        {% for ticker in popular_tickers %}
+          <option value="{{ ticker.symbol }}" {% if stock == ticker.symbol %}selected{% endif %}>
+            {{ ticker.symbol }} - {{ ticker.name }}
+          </option>
+        {% endfor %}
+      </select>
 
-            <section aria-label="Price vs 50-day Moving Average chart">
-                <h3>Price vs 50-day Moving Average</h3>
-                <img src="data:image/png;base64,{{ graph_urls['price_ma50'] }}" alt="Chart showing price versus 50-day moving average" />
-            </section>
+      <input type="submit" value="🔮 Predict" />
+    </form>
 
-            <section aria-label="Price vs 50-day and 100-day Moving Averages chart">
-                <h3>Price vs 50-day and 100-day Moving Averages</h3>
-                <img src="data:image/png;base64,{{ graph_urls['price_ma50_ma100'] }}" alt="Chart showing price versus 50-day and 100-day moving averages" />
-            </section>
+    <!-- Loading spinner -->
+    <div id="loading" class="loading">⏳ Fetching stock data, please wait...</div>
 
-            <section aria-label="Price vs 100-day and 200-day Moving Averages chart">
-                <h3>Price vs 100-day and 200-day Moving Averages</h3>
-                <img src="data:image/png;base64,{{ graph_urls['price_ma100_ma200'] }}" alt="Chart showing price versus 100-day and 200-day moving averages" />
-            </section>
+    {% if error_msg %}
+      <div class="error-message">{{ error_msg }}</div>
+    {% endif %}
 
-            <section aria-label="Predicted vs Original Price chart">
-                <h3>Predicted vs Original Price</h3>
-                <img src="data:image/png;base64,{{ graph_urls['predicted_vs_original'] }}" alt="Chart comparing predicted price versus original price" />
-            </section>
-        {% endif %}
-    </div>
+    {% if data_html %}
+      <h2>📊 Stock Data</h2>
+      <div class="table-container">
+        {{ data_html|safe }}
+      </div>
+    {% endif %}
+
+    {% if graph_urls %}
+      <h2 id="chartsSection">📉 Charts & Analysis</h2>
+
+      <section>
+        <h3>
+          Price vs 50-day Moving Average
+          <span class="tooltip">?
+            <span class="tooltiptext">This chart shows stock price vs 50-day moving average.</span>
+          </span>
+        </h3>
+        {{ graph_urls['price_ma50'] | safe }}
+      </section>
+
+      <section>
+        <h3>
+          Price vs 50 & 100-day MAs
+          <span class="tooltip">?
+            <span class="tooltiptext">Stock price compared with 50 & 100-day averages.</span>
+          </span>
+        </h3>
+        {{ graph_urls['price_ma50_ma100'] | safe }}
+      </section>
+
+      <section>
+        <h3>
+          Price vs 100 & 200-day MAs
+          <span class="tooltip">?
+            <span class="tooltiptext">Stock price compared with 100 & 200-day averages.</span>
+          </span>
+        </h3>
+        {{ graph_urls['price_ma100_ma200'] | safe }}
+      </section>
+
+      <section>
+        <h3>
+          Predicted vs Original Price
+          <span class="tooltip">?
+            <span class="tooltiptext">Compares model predictions with actual stock prices.</span>
+          </span>
+        </h3>
+        {{ graph_urls['predicted_vs_original'] | safe }}
+      </section>
+    {% endif %}
+  </div>
 </body>
 </html>

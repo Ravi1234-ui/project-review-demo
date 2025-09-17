@@ -1,92 +1,193 @@
+/* Global */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f8;
+    font-family: 'Times New Roman', Times, serif;
+    background: linear-gradient(to right, #e0f7fa, #f1f8e9);
     margin: 0;
     padding: 20px;
-    color: #333;
-}
-
-h1, h2, h3 {
-    text-align: center;
     color: #2c3e50;
+    transition: all 0.4s;
 }
 
-form {
-    max-width: 400px;
-    margin: 20px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+/* Dark Mode */
+body.dark-mode {
+    background: #121212;
+    color: #e0e0e0;
+}
+body.dark-mode .container {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+body.dark-mode .table th {
+    background: #444;
+}
+body.dark-mode .tooltip .tooltiptext {
+    background-color: #222;
 }
 
-input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0 20px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
+/* Top Bar */
+.top-bar {
+    text-align: right;
+    margin-bottom: 10px;
 }
-
-input[type="submit"] {
-    width: 100%;
-    background-color: #2980b9;
-    color: white;
-    padding: 12px;
+#themeToggle {
+    background: #1abc9c;
     border: none;
-    border-radius: 4px;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
     cursor: pointer;
+}
+#themeToggle:hover {
+    background: #16a085;
+}
+
+/* Container */
+.container {
+    max-width: 1300px;
+    margin: auto;
+    padding: 25px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+/* Headings */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #1a5276;
+    margin-bottom: 20px;
+}
+h2, h3 {
+    text-align: center;
+    color: #154360;
+    margin-top: 30px;
+    font-weight: bold;
+}
+
+/* Form */
+form {
+    max-width: 500px;
+    margin: 0 auto 30px auto;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+}
+form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+input[type="text"], select {
+    width: 100%;
+    padding: 12px;
     font-size: 1.1rem;
-    transition: background-color 0.3s ease;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
 }
-
+input[type="submit"] {
+    background-color: #1abc9c;
+    color: white;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
 input[type="submit"]:hover {
-    background-color: #3498db;
+    background-color: #16a085;
 }
 
-.table {
-    max-width: 90%;
+/* Error */
+.error-message {
+    text-align: center;
+    color: #e74c3c;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
     margin: 20px auto;
-    border-collapse: collapse;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    max-height: 450px;
 }
-
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
 .table th, .table td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
 }
-
-.table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
 .table th {
-    background-color: #2980b9;
+    background-color: #1abc9c;
     color: white;
 }
 
-img {
-    display: block;
-    max-width: 90%;
-    height: auto;
+/* Tooltip */
+.tooltip {
+    position: relative;
+    cursor: pointer;
+    margin-left: 6px;
+    color: #2980b9;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #34495e;
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 130%;
+    left: 50%;
+    margin-left: -100px;
+    width: 220px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Loading */
+.loading {
+    display: none;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 20px 0;
+    color: #2c3e50;
+}
+
+/* Charts */
+iframe {
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     margin: 20px auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(44, 62, 80, 0.15);
+    display: block;
 }
 
 /* Responsive */
-@media only screen and (max-width: 600px) {
-    form {
-        width: 90%;
+@media only screen and (max-width: 800px) {
+    body {
         padding: 10px;
     }
-
-    input[type="text"] {
-        width: 100%;
+    h1 {
+        font-size: 2rem;
     }
-
-    img {
-        max-width: 100%;
+    .container {
+        padding: 15px;
     }
 }
